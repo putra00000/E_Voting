@@ -1,63 +1,64 @@
-from modul.pemilih import PemilihManager
-from modul.calon import CalonManager
-from modul.voting import VotingSystem
-from modul.statistik import Statistik
-from modul.utils import clear_screen, pause
+from modules.pemilih import PemilihManager
+from modules.calon import CalonManager
+from modules.voting import VotingManager
+from modules.statistik import StatistikManager
 
-
-def load_data(path):
-    with open(path, 'r') as f:
-        return json.load(f)
-
-
-def save_data(path, data):
-    with open(path, 'w') as f:
-        json.dump(data, f, indent=4)
-
-
-def main():
-    clear_screen()
-    print("=== Sistem E-Voting Organisasi Mahasiswa ===")
-
-    # Load data
-    pemilih_data = load_data('data/pemilih.json')
-    calon_data = load_data('data/calon.json')
-
-    pm = PemilihManager(pemilih_data)
-    cm = CalonManager(calon_data)
-    vs = VotingSystem(pm, cm)
-    st = Statistik(pm, cm)
+def menu():
+    pm = PemilihManager()
+    cm = CalonManager()
+    vm = VotingManager(pm, cm)
+    sm = StatistikManager(pm, cm)
 
     while True:
-        print("\nMenu:")
-        print("1. Daftar Pemilih")
-        print("2. Daftar Calon")
-        print("3. Mulai Voting")
+        print("\n=== Sistem Simulasi E-Voting ===")
+        print("1. Tambah Pemilih")
+        print("2. Tambah Calon Ketua")
+        print("3. Voting")
         print("4. Tampilkan Hasil Sementara")
-        print("5. Statistik Pemilu")
+        print("5. Tampilkan Statistik Pemilu")
         print("6. Keluar")
-        choice = input("Pilih menu: ")
 
-        if choice == '1':
-            pm.tampil_pemilih()
-        elif choice == '2':
-            cm.tampil_calon()
-        elif choice == '3':
-            vs.voting()
-            save_data('data/pemilih.json', pm.data)
-            save_data('data/calon.json', cm.data)
-        elif choice == '4':
-            cm.tampilkan_hasil()
-        elif choice == '5':
-            st.tampilkan_statistik()
-        elif choice == '6':
-            print("Terima kasih. Sampai jumpa!")
+        pilihan = input("Pilih menu (1-6): ").strip()
+        if pilihan == '1':
+            try:
+                id = input("Masukkan ID Pemilih: ").strip()
+                nama = input("Masukkan Nama Pemilih: ").strip()
+                jurusan = input("Masukkan Jurusan Pemilih: ").strip()
+                pm.tambah_pemilih(id, nama, jurusan)
+                print("Pemilih berhasil ditambahkan.")
+            except ValueError as e:
+                print("Error:", e)
+
+        elif pilihan == '2':
+            try:
+                id = input("Masukkan ID Calon: ").strip()
+                nama = input("Masukkan Nama Calon: ").strip()
+                visi = input("Masukkan Visi Misi Calon: ").strip()
+                cm.tambah_calon(id, nama, visi)
+                print("Calon ketua berhasil ditambahkan.")
+            except ValueError as e:
+                print("Error:", e)
+
+        elif pilihan == '3':
+            try:
+                id_pemilih = input("Masukkan ID Pemilih: ").strip()
+                id_calon = input("Masukkan ID Calon Pilihan: ").strip()
+                vm.voting(id_pemilih, id_calon)
+            except ValueError as e:
+                print("Error:", e)
+
+        elif pilihan == '4':
+            cm.tampilkan_semua()
+
+        elif pilihan == '5':
+            sm.tampilkan_statistik()
+
+        elif pilihan == '6':
+            print("Terima kasih telah menggunakan sistem ini.")
             break
+
         else:
-            print("Pilihan tidak valid.")
+            print("Pilihan tidak valid. Silakan pilih menu yang tersedia.")
 
-        pause()
-
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    menu()
